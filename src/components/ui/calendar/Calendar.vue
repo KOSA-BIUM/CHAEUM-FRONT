@@ -1,7 +1,7 @@
 <script setup>
-import { reactiveOmit } from '@vueuse/core'
-import { CalendarRoot, useForwardPropsEmits } from 'reka-ui'
-import { cn } from '@/lib/utils'
+import { reactiveOmit } from "@vueuse/core";
+import { CalendarRoot, useForwardPropsEmits } from "reka-ui";
+import { cn } from "@/lib/utils";
 import {
   CalendarCell,
   CalendarCellTrigger,
@@ -14,7 +14,7 @@ import {
   CalendarHeading,
   CalendarNextButton,
   CalendarPrevButton,
-} from '.'
+} from ".";
 
 const props = defineProps({
   defaultValue: { type: null, required: false },
@@ -44,13 +44,13 @@ const props = defineProps({
   asChild: { type: Boolean, required: false },
   as: { type: null, required: false },
   class: { type: null, required: false },
-})
+});
 
-const emits = defineEmits(['update:modelValue', 'update:placeholder'])
+const emits = defineEmits(["update:modelValue", "update:placeholder"]);
 
-const delegatedProps = reactiveOmit(props, 'class')
+const delegatedProps = reactiveOmit(props, "class");
 
-const forwarded = useForwardPropsEmits(delegatedProps, emits)
+const forwarded = useForwardPropsEmits(delegatedProps, emits);
 </script>
 
 <template>

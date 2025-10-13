@@ -64,33 +64,33 @@
 </template>
 
 <script setup>
-import { reactive, ref } from 'vue'
-import { useRouter, RouterLink } from 'vue-router'
-import AuthLayout from '@/layouts/AuthLayout.vue'
-import { signUp } from '@/services/auth'
+import { reactive, ref } from "vue";
+import { useRouter, RouterLink } from "vue-router";
+import AuthLayout from "@/layouts/AuthLayout.vue";
+import { signUp } from "@/services/auth";
 
-const router = useRouter()
-const name = ref('')
-const email = ref('')
-const password = ref('')
-const confirm = ref('')
-const errors = reactive({ name: '', email: '', password: '', confirm: '' })
+const router = useRouter();
+const name = ref("");
+const email = ref("");
+const password = ref("");
+const confirm = ref("");
+const errors = reactive({ name: "", email: "", password: "", confirm: "" });
 
 function validate() {
-  errors.name = name.value ? '' : '이름을 입력해주세요.'
-  errors.email = email.value ? '' : '이메일을 입력해주세요.'
-  errors.password = password.value ? '' : '비밀번호를 입력해주세요.'
-  errors.confirm = confirm.value === password.value ? '' : '비밀번호가 일치하지 않습니다.'
-  return !errors.name && !errors.email && !errors.password && !errors.confirm
+  errors.name = name.value ? "" : "이름을 입력해주세요.";
+  errors.email = email.value ? "" : "이메일을 입력해주세요.";
+  errors.password = password.value ? "" : "비밀번호를 입력해주세요.";
+  errors.confirm = confirm.value === password.value ? "" : "비밀번호가 일치하지 않습니다.";
+  return !errors.name && !errors.email && !errors.password && !errors.confirm;
 }
 
 async function onSubmit() {
-  if (!validate()) return
+  if (!validate()) return;
   try {
-    await signUp({ name: name.value, email: email.value, password: password.value })
-    router.push('/signin')
+    await signUp({ name: name.value, email: email.value, password: password.value });
+    router.push("/signin");
   } catch (e) {
-    errors.email = e?.message || '회원가입에 실패했습니다.'
+    errors.email = e?.message || "회원가입에 실패했습니다.";
   }
 }
 </script>

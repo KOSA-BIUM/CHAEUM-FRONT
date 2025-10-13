@@ -48,5 +48,5 @@ defineProps({
   fat: String,
   health: String,
   image: String,
-})
+});
 </script>

@@ -42,29 +42,29 @@
 </template>
 
 <script setup>
-import { reactive, ref } from 'vue'
-import { useRouter, RouterLink } from 'vue-router'
-import AuthLayout from '@/layouts/AuthLayout.vue'
-import { signIn } from '@/services/auth'
+import { reactive, ref } from "vue";
+import { useRouter, RouterLink } from "vue-router";
+import AuthLayout from "@/layouts/AuthLayout.vue";
+import { signIn } from "@/services/auth";
 
-const router = useRouter()
-const email = ref('')
-const password = ref('')
-const errors = reactive({ email: '', password: '' })
+const router = useRouter();
+const email = ref("");
+const password = ref("");
+const errors = reactive({ email: "", password: "" });
 
 function validate() {
-  errors.email = email.value ? '' : '이메일을 입력해주세요.'
-  errors.password = password.value ? '' : '비밀번호를 입력해주세요.'
-  return !errors.email && !errors.password
+  errors.email = email.value ? "" : "이메일을 입력해주세요.";
+  errors.password = password.value ? "" : "비밀번호를 입력해주세요.";
+  return !errors.email && !errors.password;
 }
 
 async function onSubmit() {
-  if (!validate()) return
+  if (!validate()) return;
   try {
-    await signIn({ email: email.value, password: password.value })
-    router.push('/')
+    await signIn({ email: email.value, password: password.value });
+    router.push("/");
   } catch (e) {
-    errors.password = e?.message || '로그인에 실패했습니다.'
+    errors.password = e?.message || "로그인에 실패했습니다.";
   }
 }
 </script>
