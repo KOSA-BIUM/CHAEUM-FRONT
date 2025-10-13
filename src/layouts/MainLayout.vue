@@ -56,13 +56,13 @@
 </template>
 
 <script setup>
-import { RouterLink, useRoute } from 'vue-router'
-import { computed } from 'vue'
-import logo from '@/assets/logo.svg'
+import { RouterLink, useRoute } from "vue-router";
+import { computed } from "vue";
+import logo from "@/assets/logo.svg";
 
-const route = useRoute()
-const isActive = path => route.path === path
-const pageTitle = computed(() => route.meta?.title || '')
+const route = useRoute();
+const isActive = path => route.path === path;
+const pageTitle = computed(() => route.meta?.title || "");
 </script>
 
 <style scoped>
