@@ -1,122 +1,218 @@
 <template>
   <MainLayout>
-    <!-- Featured Menu Card -->
-    <section class="mb-8 grid grid-cols-12 gap-4">
-      <div class="col-span-8 rounded-2xl bg-white p-5 shadow-sm">
-        <div class="flex gap-4">
-          <div class="h-28 w-40 overflow-hidden rounded-xl bg-gray-200">
-            <img
-              src="https://images.unsplash.com/photo-1551183053-bf91a1d81141?q=80&w=800&auto=format&fit=crop"
-              alt="Featured"
-              class="h-full w-full object-cover"
-            />
-          </div>
-          <div class="flex-1">
-            <h2 class="mb-2 text-xl leading-snug font-bold">
-              Grilled Turkey Breast with Steamed Asparagus and Brown Rice
-            </h2>
-            <div class="mb-3 flex flex-wrap items-center gap-2 text-xs text-[#7D7D7D]">
-              <span class="rounded-md bg-[#FFF5CC] px-2 py-0.5 text-[#A67C00]">Lunch</span>
-              <span>•</span>
-              <span>4.8/5 (125 reviews)</span>
-              <span>•</span>
-              <span>Difficulty Medium</span>
-              <span>•</span>
-              <span>Cook 10 minutes</span>
-            </div>
-            <button
-              class="mt-1 rounded-xl bg-[#9AD77C] px-4 py-2 text-sm font-semibold text-white hover:bg-[#89c36e]"
+    <!-- Period setting -->
+    <div class="flex flex-col gap-2">
+    <Label
+      class="text-sm text-stone-700"
+      for="booking"
+    >
+      캘린더에 등록한 식단 기간을 설정 후 추천받기 버튼을 눌러주세요.
+    </Label>
+    <div class="flex gap-8">
+      <DateRangePickerRoot
+        id="booking"
+      >
+        <DateRangePickerField
+          v-slot="{ segments }"
+          class="flex select-none bg-white items-center rounded-lg text-center text-green10 border shadow-sm p-1 data-[invalid]:border-red-500"
+        >
+          <template
+            v-for="item in segments.start"
+            :key="item.part"
+          >
+            <DateRangePickerInput
+              v-if="item.part === 'literal'"
+              :part="item.part"
+              type="start"
             >
-              Add to Meal Plan
-            </button>
-          </div>
-        </div>
+              {{ item.value }}
+            </DateRangePickerInput>
+            <DateRangePickerInput
+              v-else
+              :part="item.part"
+              class="rounded-md p-0.5 focus:outline-none focus:shadow-[0_0_0_2px] focus:shadow-black data-[placeholder]:text-green9"
+              type="start"
+            >
+              {{ item.value }}
+            </DateRangePickerInput>
+          </template>
+          <span class="mx-2">
+  
+            -
+          </span>
+          <template
+            v-for="item in segments.end"
+            :key="item.part"
+          >
+            <DateRangePickerInput
+              v-if="item.part === 'literal'"
+              :part="item.part"
+              type="end"
+            >
+              {{ item.value }}
+            </DateRangePickerInput>
+            <DateRangePickerInput
+              v-else
+              :part="item.part"
+              class="rounded-md p-0.5 focus:outline-none focus:shadow-[0_0_0_2px] focus:shadow-black data-[placeholder]:text-green9"
+              type="end"
+            >
+              {{ item.value }}
+            </DateRangePickerInput>
+          </template>
+  
+          <DateRangePickerTrigger class="ml-4 focus:shadow-[0_0_0_2px] focus:shadow-black focus:outline-none rounded p-1">
+            <CalendarDays
+              class="w-4 h-4"
+            />
+          </DateRangePickerTrigger>
+        </DateRangePickerField>
+  
+        <DateRangePickerContent
+          :side-offset="4"
+          class="rounded-xl bg-white border shadow-sm will-change-[transform,opacity] data-[state=open]:data-[side=top]:animate-slideDownAndFade data-[state=open]:data-[side=right]:animate-slideLeftAndFade data-[state=open]:data-[side=bottom]:animate-slideUpAndFade data-[state=open]:data-[side=left]:animate-slideRightAndFade"
+        >
+          <DateRangePickerArrow class="fill-white stroke-gray-300" />
+          <DateRangePickerCalendar
+            v-slot="{ weekDays, grid }"
+            class="p-4"
+          >
+            <DateRangePickerHeader class="flex items-center justify-between">
+              <DateRangePickerPrev
+                class="inline-flex items-center cursor-pointer text-black justify-center rounded-md bg-transparent w-7 h-7 hover:bg-stone-100 active:scale-98 active:transition-all focus:shadow-[0_0_0_2px] focus:shadow-black"
+              >
+                <ChevronLeft
+                  class="w-4 h-4"
+                />
+              </DateRangePickerPrev>
+  
+              <DateRangePickerHeading class="text-sm text-black font-medium" />
+              <DateRangePickerNext
+                class="inline-flex items-center cursor-pointer text-black justify-center rounded-md bg-transparent w-7 h-7 hover:bg-stone-100 active:scale-98 active:transition-all focus:shadow-[0_0_0_2px] focus:shadow-black"
+              >
+                <ChevronRight
+                  class="w-4 h-4"
+                />
+              </DateRangePickerNext>
+            </DateRangePickerHeader>
+            <div
+              class="flex flex-col space-y-4 pt-4 sm:flex-row sm:space-x-4 sm:space-y-0"
+            >
+              <DateRangePickerGrid
+                v-for="month in grid"
+                :key="month.value.toString()"
+                class="w-full border-collapse select-none space-y-1"
+              >
+                <DateRangePickerGridHead>
+                  <DateRangePickerGridRow class="mb-1 flex w-full justify-between">
+                    <DateRangePickerHeadCell
+                      v-for="day in weekDays"
+                      :key="day"
+                      class="w-8 rounded-md text-xs !font-normal text-black"
+                    >
+                      {{ day }}
+                    </DateRangePickerHeadCell>
+                  </DateRangePickerGridRow>
+                </DateRangePickerGridHead>
+                <DateRangePickerGridBody>
+                  <DateRangePickerGridRow
+                    v-for="(weekDates, index) in month.rows"
+                    :key="`weekDate-${index}`"
+                    class="flex w-full"
+                  >
+                    <DateRangePickerCell
+                      v-for="weekDate in weekDates"
+                      :key="weekDate.toString()"
+                      :date="weekDate"
+                    >
+                      <DateRangePickerCellTrigger
+                        :day="weekDate"
+                        :month="month.value"
+                        class="relative flex items-center justify-center rounded-full whitespace-nowrap text-sm font-normal text-black w-8 h-8 outline-none focus:shadow-[0_0_0_2px] focus:shadow-black data-[outside-view]:text-black/30 data-[selected]:!bg-green10 data-[selected]:text-white hover:bg-green5 data-[highlighted]:bg-green5 data-[unavailable]:pointer-events-none data-[unavailable]:text-black/30 data-[unavailable]:line-through before:absolute before:top-[5px] before:hidden before:rounded-full before:w-1 before:h-1 before:bg-white data-[today]:before:block data-[today]:before:bg-green9 "
+                      />
+                    </DateRangePickerCell>
+                  </DateRangePickerGridRow>
+                </DateRangePickerGridBody>
+              </DateRangePickerGrid>
+            </div>
+          </DateRangePickerCalendar>
+        </DateRangePickerContent>
+      </DateRangePickerRoot>
+      <div class="flex">
+        <button>
+          추천받기
+        </button>
       </div>
-      <div class="col-span-4 space-y-3">
-        <div class="rounded-xl bg-[#E2F3C9] p-3">
-          <p class="text-xs text-[#4D6B2F]">Calories</p>
-          <p class="text-lg font-semibold text-[#2B2B2B]">450 kcal</p>
-        </div>
-        <div class="rounded-xl bg-[#FFE4AF] p-3">
-          <p class="text-xs text-[#7C4A00]">Carbs</p>
-          <p class="text-lg font-semibold text-[#2B2B2B]">40 gr</p>
-        </div>
-        <div class="rounded-xl bg-[#FFD7CC] p-3">
-          <p class="text-xs text-[#7E3321]">Proteins</p>
-          <p class="text-lg font-semibold text-[#2B2B2B]">35 gr</p>
-        </div>
-        <div class="rounded-xl bg-[#EAEAEA] p-3">
-          <p class="text-xs text-[#5F5F5F]">Fats</p>
-          <p class="text-lg font-semibold text-[#2B2B2B]">12 gr</p>
-        </div>
-      </div>
-    </section>
+    </div>
+  </div>
 
-    <!-- All Menu -->
+    <!-- Recommendation Menu -->
     <section>
-      <div class="mb-4 flex items-center justify-between">
-        <div class="flex items-center gap-2 text-sm">
-          <span class="rounded-full bg-[#2ECC71]/10 px-3 py-1 font-medium text-[#2ECC71]">All</span>
-          <button class="rounded-full px-3 py-1 text-[#7D7D7D] hover:bg-[#F1F3F7]">
-            Breakfast
-          </button>
-          <button class="rounded-full px-3 py-1 text-[#7D7D7D] hover:bg-[#F1F3F7]">Lunch</button>
-          <button class="rounded-full px-3 py-1 text-[#7D7D7D] hover:bg-[#F1F3F7]">Snack</button>
-          <button class="rounded-full px-3 py-1 text-[#7D7D7D] hover:bg-[#F1F3F7]">Dinner</button>
-        </div>
-        <div class="flex items-center gap-3 text-sm text-[#7D7D7D]">
-          <button class="rounded-lg border px-3 py-1 hover:bg-[#F1F3F7]">Filter</button>
-          <div class="flex items-center gap-2">
-            <span>Sort by:</span>
-            <select class="rounded-lg border px-2 py-1">
-              <option>Calories</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
       <div class="space-y-4">
         <MenuItem
-          title="Avocado Toast with Poached Egg"
-          tag="Breakfast"
-          kcal="320"
-          carbs="30"
-          protein="14"
-          fat="18"
-          health="9"
-          image="https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?q=80&w=800&auto=format&fit=crop"
+          title="오트밀과 바나나"
+          tag="아침"
+          kcal="350"
+          carbs="40"
+          protein="8"
+          fat="10"
+          sodium="5"
         />
         <MenuItem
-          title="Grilled Shrimp Tacos with Mango Salsa"
-          tag="Lunch"
-          kcal="400"
-          carbs="45"
-          protein="28"
-          fat="12"
-          health="8"
-          image="https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?q=80&w=800&auto=format&fit=crop"
+          title="닭가슴살 샐러드"
+          tag="점심"
+          kcal="450"
+          carbs="60"
+          protein="30"
+          fat="10"
+          sodium="200"
         />
         <MenuItem
-          title="Baked Chicken Breast with Quinoa and Kale"
-          tag="Dinner"
-          kcal="480"
+          title="연어 구이와 채소"
+          tag="저녁"
+          kcal="500"
           carbs="50"
-          protein="40"
+          protein="35"
           fat="15"
-          health="9"
-          image="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800&auto=format&fit=crop"
+          sodium="200"
+        />
+        <MenuItem
+          title="견과류 믹스"
+          tag="간식"
+          kcal="150"
+          carbs="20"
+          protein="5"
+          fat="5"
+          sodium="1"
         />
       </div>
     </section>
-
-    <!-- Footer -->
-    <footer class="mt-10 rounded-2xl bg-white p-4 text-center text-sm text-[#7D7D7D] shadow-sm">
-      Copyright © 2025 (주)비움
-    </footer>
   </MainLayout>
 </template>
 
-<script setup>
+<script setup >
+import { CalendarDays,ChevronRight,ChevronLeft } from "lucide-vue-next";
+import {
+  DateRangePickerArrow,
+  DateRangePickerCalendar,
+  DateRangePickerCell,
+  DateRangePickerCellTrigger,
+  DateRangePickerContent,
+  DateRangePickerField,
+  DateRangePickerGrid,
+  DateRangePickerGridBody,
+  DateRangePickerGridHead,
+  DateRangePickerGridRow,
+  DateRangePickerHeadCell,
+  DateRangePickerHeader,
+  DateRangePickerHeading,
+  DateRangePickerInput,
+  DateRangePickerNext,
+  DateRangePickerPrev,
+  DateRangePickerRoot,
+  DateRangePickerTrigger,
+  Label,
+} from 'reka-ui'
 import MainLayout from "@/layouts/MainLayout.vue";
 import MenuItem from "@/components/menu/MenuItem.vue";
 </script>
