@@ -9,15 +9,12 @@ const api = axios.create({
   timeout: 15000,
 });
 
-// Token storage helpers (adjust to your auth strategy)
-export const tokenKey = "access_token";
-export const getToken = () => localStorage.getItem(tokenKey);
-export const setToken = token => localStorage.setItem(tokenKey, token);
-export const clearToken = () => localStorage.removeItem(tokenKey);
+// ★ 토큰 저장은 http.js에 위임
+import { getAccessToken } from '@/lib/http';
 
 // Request interceptor: attach Authorization header when token exists
 api.interceptors.request.use(config => {
-  const token = getToken();
+  const token = getAccessToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
