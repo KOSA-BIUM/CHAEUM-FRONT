@@ -12,6 +12,7 @@
           type="email"
           placeholder="you@example.com"
           class="w-full rounded-xl border border-[#E6E8EE] bg-white px-4 py-2 text-sm outline-none placeholder:text-[#B2B6C3] focus:ring-2 focus:ring-[#7ED957]"
+          required
         />
         <p v-if="errors.email" class="mt-1 text-xs text-red-500">{{ errors.email }}</p>
       </div>
@@ -23,6 +24,7 @@
           type="password"
           placeholder="비밀번호"
           class="w-full rounded-xl border border-[#E6E8EE] bg-white px-4 py-2 text-sm outline-none placeholder:text-[#B2B6C3] focus:ring-2 focus:ring-[#7ED957]"
+          required
         />
         <p v-if="errors.password" class="mt-1 text-xs text-red-500">{{ errors.password }}</p>
       </div>

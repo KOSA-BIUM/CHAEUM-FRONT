@@ -137,6 +137,7 @@ const props = defineProps({
   modelValue: {
     type: Object,
     default: () => ({
+      mealItemId: undefined,
       name: "",
       ingredients: "",
       nutrition: { kcal: null, carbs: null, protein: null, fat: null, sodium: null },
