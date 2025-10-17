@@ -10,9 +10,9 @@
 
         <nav class="space-y-1">
           <RouterLink
-            to="/"
+            to="/calendar"
             class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm hover:bg-[#F1F3F7]"
-            :class="isActive('/') ? 'font-semibold text-[#2B2B2B]' : 'text-[#7D7D7D]'"
+            :class="isActive('/calendar') ? 'font-semibold text-[#2B2B2B]' : 'text-[#7D7D7D]'"
           >
             <span>캘린더</span>
           </RouterLink>
