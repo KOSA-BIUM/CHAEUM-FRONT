@@ -45,7 +45,6 @@ const recommendation = {
         } catch (error) {
             // 404 Not Found (기록 없음) 또는 기타 오류 처리
             if (error.response && error.response.status === 404) {
-                console.log("No latest recommendation found for user.");
                 return null; // 기록이 없을 경우 null 반환
             }
 

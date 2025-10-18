@@ -27,7 +27,7 @@ import {
 import MainLayout from "@/layouts/MainLayout.vue";
 import MenuItem from "@/components/menu/MenuItem.vue";
 
-// 1. 상태 관리 정의
+// 상태 관리 정의
 // selectedDateRange: 사용자가 선택한 날짜 범위 (reka-ui 컴포넌트 v-model 연결)
 const selectedDateRange = ref({ start: null, end: null }); 
 // recommendationData: 서버에서 받은 식단 추천 데이터
@@ -119,7 +119,6 @@ const executeRecommendation = async () => {
         const data = await recommendation.executeRecommendation(startDate, endDate);
         
         recommendationData.value = data;
-        console.log('Recommendation successful:', data);
 
     } catch (err) {
         // 서비스 파일에서 던진 오류 메시지를 표시
@@ -141,12 +140,11 @@ const fetchLatestRecommendation = async () => {
             recommendationData.value = data;
         }
     } catch (e) {
-        // 오류가 발생하면 에러 메시지를 사용자에게 보여주지 않고 콘솔에만 기록
-        console.log("Failed to load latest recommendation. Starting fresh.", e);
+        // 오류가 발생
     }
 };
 
-// 4. 컴포넌트 마운트 시 (페이지 로드 시) 최신 기록 조회
+// 컴포넌트 마운트 시 (페이지 로드 시) 최신 기록 조회
 onMounted(() => {
     fetchLatestRecommendation();
 });
@@ -310,7 +308,7 @@ onMounted(() => {
       </h2>
 
       <!-- 추천 이유 표시 (서버 응답에 recommendationReason이 있다고 가정) -->
-      <div v-if="recommendationData?.recommendationReason" class="mb-6 p-4 bg-emerald-50 border-l-4 border-emerald-600 rounded-lg">
+      <div v-if="recommendationData?.recommendationReason && !isLoading" class="mb-6 p-4 bg-emerald-50 border-l-4 border-emerald-600 rounded-lg">
           <p class="text-sm font-semibold text-emerald-800">추천 이유</p>
           <p class="text-stone-700 mt-1 whitespace-pre-wrap">{{ recommendationData.recommendationReason }}</p>
       </div>
