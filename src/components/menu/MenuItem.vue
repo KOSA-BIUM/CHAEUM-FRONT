@@ -41,11 +41,11 @@
 defineProps({
   title: String,
   tag: String,
-  kcal: String,
-  carbs: String,
-  protein: String,
-  fat: String,
-  sodium: String,
+  kcal: Number,
+  carbs: Number,
+  protein: Number,
+  fat: Number,
+  sodium: Number,
 });
 
 const tagColorMap = {
