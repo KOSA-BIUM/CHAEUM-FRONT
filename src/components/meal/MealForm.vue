@@ -84,7 +84,7 @@
     <div class="space-y-4">
       <div
         v-for="(it, idx) in items"
-        :key="idx"
+        :key="it.mealItemId ?? idx"
         class="mx-1 rounded-md border-0 p-3 shadow-[0_4px_16px_rgba(0,0,0,0.08)]"
       >
         <div class="mb-2 flex items-center justify-between">

@@ -29,7 +29,7 @@
           <div class="space-y-4">
             <Card
               v-for="(item, idx) in meal.items"
-              :key="idx"
+              :key="item.mealItemId ?? idx"
               class="mx-2 rounded-2xl border-0 shadow-[0_4px_16px_rgba(0,0,0,0.08)]"
             >
               <CardHeader class="pb-2">
