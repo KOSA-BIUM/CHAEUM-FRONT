@@ -80,9 +80,17 @@ const prevYM = computed(() => shiftYearMonth(yearMonth.value, -1));
 const nextYM = computed(() => shiftYearMonth(yearMonth.value, 1));
 
 // Fetch previous, current, and next months to fill leading/trailing days
-const { data: calDataPrev, isError: isErrorPrev, error: errorPrev } = useCalendar(userIdRef, prevYM);
+const {
+  data: calDataPrev,
+  isError: isErrorPrev,
+  error: errorPrev,
+} = useCalendar(userIdRef, prevYM);
 const { data: calData, isError, error } = useCalendar(userIdRef, yearMonth);
-const { data: calDataNext, isError: isErrorNext, error: errorNext } = useCalendar(userIdRef, nextYM);
+const {
+  data: calDataNext,
+  isError: isErrorNext,
+  error: errorNext,
+} = useCalendar(userIdRef, nextYM);
 // Local UI events (derived from API)
 const events = ref([]);
 const qc = useQueryClient();
@@ -379,8 +387,8 @@ async function openMeal(ev) {
       <!-- Notion-like Calendar using shadcn calendar primitives -->
       <CalendarRoot
         v-slot="{ grid, weekDays }"
-    v-model:modelValue="selected"
-    @update:placeholder="onPlaceholderUpdate"
+        v-model:modelValue="selected"
+        @update:placeholder="onPlaceholderUpdate"
         :week-starts-on="1"
         fixed-weeks
         weekday-format="short"
