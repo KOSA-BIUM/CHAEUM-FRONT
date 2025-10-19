@@ -14,6 +14,7 @@ import { useCalendar } from "@/composables/useCalendar";
 import { mapMealCardsToEvents, divisionToKorean } from "@/lib/calendarMap";
 import { useCurrentUser } from "@/composables/useCurrentUser";
 import { useCreateMealCard, useUpdateMealCard, useDeleteMealCard } from "@/composables/useMealCard";
+import { getMealCard as fetchMealCardDetail } from "@/services/mealCard";
 import { useQueryClient } from "@tanstack/vue-query";
 import { Plus } from "lucide-vue-next";
 import MealDialog from "@/components/meal/MealDialog.vue";
@@ -28,14 +29,35 @@ function ymd(d) {
 
 const today = new Date();
 // Track the currently displayed month via CalendarRoot placeholder
-const viewMonth = ref(null); // CalendarDate-like object from reka-ui
+const viewMonthRef = ref(null); // CalendarDate-like object from reka-ui
+
+function ymFromDateYmd(dateYmd) {
+  if (!dateYmd || typeof dateYmd !== "string") return "";
+  // Expect YYYY-MM-DD
+  const m = dateYmd.match(/^(\d{4}-\d{2})-/);
+  return m ? m[1] : dateYmd.slice(0, 7);
+}
+
+function pad2(n) {
+  return String(n).padStart(2, "0");
+}
+
+function shiftYearMonth(ym, delta) {
+  if (!ym) return "";
+  const [yStr, mStr] = ym.split("-");
+  const y = Number(yStr);
+  const m = Number(mStr);
+  if (!y || !m) return "";
+  const d = new Date(y, m - 1 + delta, 1);
+  return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}`;
+}
 
 // User + API calendar data
 const { data: me } = useCurrentUser();
 const userIdRef = computed(() => me?.value?.userId);
 // Compute yearMonth (YYYY-MM) from the visible month; fallback to today's month
 const yearMonth = computed(() => {
-  const vm = viewMonth?.value;
+  const vm = viewMonthRef?.value;
   if (!vm) {
     return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
   }
@@ -49,20 +71,37 @@ const yearMonth = computed(() => {
   if (y && mm) return `${y}-${String(mm).padStart(2, "0")}`;
   return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
 });
-const { data: calData, isLoading, isError, error } = useCalendar(userIdRef, yearMonth);
+
+function onPlaceholderUpdate(val) {
+  // Some calendar implementations can emit null; keep it controlled.
+  viewMonthRef.value = val;
+}
+const prevYM = computed(() => shiftYearMonth(yearMonth.value, -1));
+const nextYM = computed(() => shiftYearMonth(yearMonth.value, 1));
+
+// Fetch previous, current, and next months to fill leading/trailing days
+const { data: calDataPrev, isError: isErrorPrev, error: errorPrev } = useCalendar(userIdRef, prevYM);
+const { data: calData, isError, error } = useCalendar(userIdRef, yearMonth);
+const { data: calDataNext, isError: isErrorNext, error: errorNext } = useCalendar(userIdRef, nextYM);
 // Local UI events (derived from API)
 const events = ref([]);
 const qc = useQueryClient();
 const invalidateCalendar = () => qc.invalidateQueries({ queryKey: ["calendar"] });
 watchEffect(() => {
-  const mealCards = calData?.value?.mealCards;
-  if (mealCards) {
-    events.value = mapMealCardsToEvents(mealCards);
+  const cards = [];
+  // Append prev month
+  if (!(isErrorPrev?.value && errorPrev?.value?.status === 404)) {
+    if (calDataPrev?.value?.mealCards) cards.push(...calDataPrev.value.mealCards);
   }
-  if (isError?.value && error?.value?.status === 404) {
-    // 해당 월 데이터 없음 → 빈 달 유지
-    events.value = [];
+  // Append current month
+  if (!(isError?.value && error?.value?.status === 404)) {
+    if (calData?.value?.mealCards) cards.push(...calData.value.mealCards);
   }
+  // Append next month
+  if (!(isErrorNext?.value && errorNext?.value?.status === 404)) {
+    if (calDataNext?.value?.mealCards) cards.push(...calDataNext.value.mealCards);
+  }
+  events.value = mapMealCardsToEvents(cards);
 });
 
 const colorMap = {
@@ -156,6 +195,8 @@ const selected = ref(null); // CalendarRoot selection (CalendarDate or string)
 // Meal dialog state
 const mealDialogOpen = ref(false);
 const mealDialogMode = ref("create"); // 'create' | 'view' | 'edit'
+// Track original year-month at the start of edit to decide payload shape on update
+const originalYM = ref(null);
 function makeEmptyMeal(date = "") {
   return {
     id: undefined,
@@ -191,7 +232,10 @@ function toRecordDateISO(dateYmd) {
 function mapMealToApiBody(payload, calendarId) {
   const items = Array.isArray(payload.items) ? payload.items : [];
   return {
-    ...(calendarId ? { calendarId } : { userId: userIdRef.value, yearMonth: yearMonth.value }),
+    // Send to the correct calendar based on the record date's month.
+    ...(calendarId
+      ? { calendarId }
+      : { userId: userIdRef.value, yearMonth: ymFromDateYmd(payload.date) }),
     recordDate: toRecordDateISO(payload.date),
     division: DIET_ENUM[payload.diet?.trim()] || "BREAKFAST",
     items: items.map(it => ({
@@ -212,10 +256,19 @@ const createMealMut = useCreateMealCard();
 const updateMealMut = useUpdateMealCard();
 const deleteMealMut = useDeleteMealCard();
 
+function getCalendarIdForYM(ym) {
+  if (!ym) return undefined;
+  if (ym === prevYM.value) return calDataPrev?.value?.calendarId;
+  if (ym === yearMonth.value) return calData?.value?.calendarId;
+  if (ym === nextYM.value) return calDataNext?.value?.calendarId;
+  return undefined;
+}
+
 async function onMealSubmit(payload) {
   try {
-    const calendarId = calData?.value?.calendarId;
-    const body = mapMealToApiBody(payload, calendarId);
+    const targetYM = ymFromDateYmd(payload.date);
+    const targetCalId = getCalendarIdForYM(targetYM);
+    const body = mapMealToApiBody(payload, targetCalId);
     await createMealMut.mutateAsync(body);
     await invalidateCalendar();
   } finally {
@@ -225,17 +278,28 @@ async function onMealSubmit(payload) {
 
 function onMealEdit() {
   // Switch dialog into edit mode while keeping it open
+  // Snapshot the original year-month before user changes date
+  originalYM.value = ymFromDateYmd(mealEditing.value?.date || "");
   mealDialogMode.value = "edit";
 }
 
 async function onMealUpdate(payload) {
   if (!payload || !payload.id) return;
-  const calendarId = calData?.value?.calendarId;
-  const body = mapMealToApiBody(payload, calendarId);
+  const targetYM = ymFromDateYmd(payload.date);
+  let body;
+  if (originalYM.value && targetYM === originalYM.value) {
+    // Same year-month: send calendarId (stay in same calendar)
+    const calId = getCalendarIdForYM(originalYM.value);
+    body = mapMealToApiBody(payload, calId);
+  } else {
+    // Different year-month: force userId + yearMonth path (move to another calendar)
+    body = mapMealToApiBody(payload, undefined);
+  }
   await updateMealMut.mutateAsync({ mealCardId: payload.id, body });
   await invalidateCalendar();
   mealEditing.value = JSON.parse(JSON.stringify(payload));
   mealDialogMode.value = "view";
+  originalYM.value = targetYM;
 }
 
 async function onMealDelete() {
@@ -246,6 +310,7 @@ async function onMealDelete() {
   mealDialogOpen.value = false;
   mealEditing.value = makeEmptyMeal("");
   mealDialogMode.value = "create";
+  originalYM.value = null;
 }
 
 function mapMealCardToDialogMeal(card) {
@@ -275,11 +340,27 @@ function mapMealCardToDialogMeal(card) {
   };
 }
 
-function openMeal(ev) {
-  if (!ev?.mealId) return;
-  const card = calData?.value?.mealCards?.find(
-    m => m.mealCardId === ev.mealId || m.mealCardId === ev.id,
-  );
+async function openMeal(ev) {
+  const id = ev?.mealId ?? ev?.id;
+  if (!id) return;
+  try {
+    const card = await fetchMealCardDetail(id);
+    if (card) {
+      mealEditing.value = mapMealCardToDialogMeal(card);
+      mealDialogMode.value = "view";
+      mealDialogOpen.value = true;
+      return;
+    }
+  } catch (e) {
+    // Fallback to existing loaded data if network/detail fetch fails
+    console.warn("Failed to fetch meal card detail; falling back to cached list", e);
+  }
+  const candidates = [
+    ...(calDataPrev?.value?.mealCards || []),
+    ...(calData?.value?.mealCards || []),
+    ...(calDataNext?.value?.mealCards || []),
+  ];
+  const card = candidates.find(m => m.mealCardId === id);
   if (!card) return;
   mealEditing.value = mapMealCardToDialogMeal(card);
   mealDialogMode.value = "view";
@@ -298,8 +379,8 @@ function openMeal(ev) {
       <!-- Notion-like Calendar using shadcn calendar primitives -->
       <CalendarRoot
         v-slot="{ grid, weekDays }"
-        v-model:modelValue="selected"
-        @update:placeholder="val => (viewMonth = val)"
+    v-model:modelValue="selected"
+    @update:placeholder="onPlaceholderUpdate"
         :week-starts-on="1"
         fixed-weeks
         weekday-format="short"
