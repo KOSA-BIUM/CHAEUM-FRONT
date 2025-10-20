@@ -34,7 +34,7 @@
 
         <div class="absolute right-4 bottom-4 left-4">
           <RouterLink
-            to="/signin"
+            to="/login"
             class="inline-flex w-full items-center justify-center rounded-xl border bg-[#F6F7FB] px-3 py-2 text-sm text-[#7D7D7D] hover:bg-[#EEF0F6]"
           >
             로그아웃
