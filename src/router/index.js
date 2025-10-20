@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
-import { getAccessToken } from '@/lib/http';
+import { getAccessToken } from "@/lib/http";
 
 const routes = [
   {
@@ -31,9 +31,9 @@ const routes = [
     name: "signup",
     component: () => import("@/pages/SignUp.vue"),
   },
-  { 
-    path: '/callback', 
-    component: () => import("@/pages/Callback.vue") 
+  {
+    path: "/callback",
+    component: () => import("@/pages/Callback.vue"),
   },
   {
     path: "/ai_meal",
@@ -54,10 +54,10 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach((to) => {
+router.beforeEach(to => {
   if (!to.meta.requiresAuth) return true;
   if (getAccessToken()) return true;
-  return '/login';
+  return "/login";
 });
 
 export default router;
