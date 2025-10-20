@@ -8,7 +8,7 @@
         </h1>
       </header>
 
-      <div class="grid items-center gap-10 sm:grid-cols-2">
+      <div class="grid items-center gap-10">
         <div>
           <h2 class="mb-6 text-4xl leading-tight font-semibold tracking-tight sm:text-5xl">
             <span class="bg-gradient-to-b from-gray-900 to-gray-700 bg-clip-text text-transparent">
