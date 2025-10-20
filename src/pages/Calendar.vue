@@ -94,7 +94,15 @@ const {
 // Local UI events (derived from API)
 const events = ref([]);
 const qc = useQueryClient();
-const invalidateCalendar = () => qc.invalidateQueries({ queryKey: ["calendar"] });
+async function invalidateCalendarYM(yms) {
+  const uid = userIdRef.value;
+  const arr = Array.isArray(yms) ? yms : [yms];
+  await Promise.all(
+    arr
+      .filter(Boolean)
+      .map(ym => qc.invalidateQueries({ queryKey: ["calendar", { userId: uid, yearMonth: ym }] }))
+  );
+}
 watchEffect(() => {
   const cards = [];
   // Append prev month
@@ -278,7 +286,7 @@ async function onMealSubmit(payload) {
     const targetCalId = getCalendarIdForYM(targetYM);
     const body = mapMealToApiBody(payload, targetCalId);
     await createMealMut.mutateAsync(body);
-    await invalidateCalendar();
+    await invalidateCalendarYM(targetYM);
   } finally {
     mealDialogOpen.value = false;
   }
@@ -304,7 +312,11 @@ async function onMealUpdate(payload) {
     body = mapMealToApiBody(payload, undefined);
   }
   await updateMealMut.mutateAsync({ mealCardId: payload.id, body });
-  await invalidateCalendar();
+  if (originalYM.value && originalYM.value !== targetYM) {
+    await invalidateCalendarYM([originalYM.value, targetYM]);
+  } else {
+    await invalidateCalendarYM(targetYM);
+  }
   mealEditing.value = JSON.parse(JSON.stringify(payload));
   mealDialogMode.value = "view";
   originalYM.value = targetYM;
@@ -314,7 +326,7 @@ async function onMealDelete() {
   const id = mealEditing.value?.id;
   if (!id) return (mealDialogOpen.value = false);
   await deleteMealMut.mutateAsync(id);
-  await invalidateCalendar();
+  await invalidateCalendarYM(ymFromDateYmd(mealEditing.value?.date));
   mealDialogOpen.value = false;
   mealEditing.value = makeEmptyMeal("");
   mealDialogMode.value = "create";
