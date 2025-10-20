@@ -3,6 +3,12 @@ import { getAccessToken } from '@/lib/http';
 
 const routes = [
   {
+    path: "/",
+    name: "home",
+    component: () => import("@/pages/Home.vue"),
+    meta: { title: "홈" },
+  },
+  {
     path: "/calendar",
     name: "calendar",
     component: () => import("@/pages/Calendar.vue"),
